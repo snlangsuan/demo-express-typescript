@@ -1,0 +1,28 @@
+{
+  "entryFile": "src/server.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/**/*controllers.ts"],
+  "spec": {
+    "name": "Demo Express Typescript",
+    "outputDirectory": "public",
+    "specVersion": 3,
+    "securityDefinitions": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "spec": {
+      "servers": [{
+        "url": "http://localhost:3100/api",
+        "description": "Local development"
+      }]
+    }
+  },
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#*": ["src/*"]
+    }
+  }
+}
