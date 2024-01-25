@@ -7,7 +7,7 @@ export default class InvalidParameterError extends HttpError {
   private readonly _logging: boolean
   private readonly _details: Array<IBaseErrorDetail> | undefined
 
-  constructor(message?: string, statusCode?: number, details?: Array<IBaseErrorDetail>, logging: boolean = true) {
+  constructor(message?: string, details?: Array<IBaseErrorDetail>, statusCode?: number, logging: boolean = true) {
     super(message ?? 'Invalid parameter.')
     this._code = statusCode ?? InvalidParameterError._statusCode
     this._logging = logging

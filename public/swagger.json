@@ -7,8 +7,24 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"IBaseEmptyResponse": {
-				"properties": {},
+			"IUserCredentialResponse": {
+				"properties": {
+					"access_token": {
+						"type": "string"
+					},
+					"refresh_token": {
+						"type": "string"
+					},
+					"expired": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"access_token",
+					"refresh_token",
+					"expired"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -93,6 +109,11 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"IBaseEmptyResponse": {
+				"properties": {},
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -120,7 +141,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IBaseEmptyResponse"
+									"$ref": "#/components/schemas/IUserCredentialResponse"
 								}
 							}
 						}
@@ -238,8 +259,21 @@
 				"tags": [
 					"Authentication"
 				],
-				"security": [],
-				"parameters": []
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "refresh_token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		}
 	},

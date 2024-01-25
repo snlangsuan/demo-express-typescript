@@ -3,12 +3,11 @@ import { pino } from 'pino'
 import PinoHttp from 'pino-http'
 import { defu } from 'defu'
 import type { Options as PinoHttpOptions } from 'pino-http'
-import { Request as ExRequest } from 'express'
 import type { IncomingMessage, ServerResponse } from 'http'
 
-const PROTECTED_REQUEST_BODY: Array<string> = ['password', 'image']
+const PROTECTED_REQUEST_BODY: Array<string> = ['password', 'image', 'refresh_token']
 
-const filter_secret_property = (
+const filterSecretProperty = (
   input: Record<string, unknown> = {},
   props: Array<string> = []
 ): Record<string, unknown> => {
@@ -20,6 +19,11 @@ const filter_secret_property = (
     },
     {} as Record<string, unknown>
   )
+}
+
+const filterSecretUrl = (url: string) => {
+  const regex = /(\?|&)(refresh_token|access_token|token)=([^&]+)/gm
+  return url.replace(regex, '$1$2=<secret>')
 }
 
 const get_auth = (req: IncomingMessage) => {
@@ -38,14 +42,14 @@ const defaults: PinoHttpOptions = {
   wrapSerializers: true,
   serializers: {
     err: pino.stdSerializers.err,
-    req(req: ExRequest) {
+    req(req: IncomingMessage) {
       return {
         id: req.id,
         method: req.method,
-        url: req.url,
-        query: req.query,
-        params: req.params,
-        body: filter_secret_property(req.body, PROTECTED_REQUEST_BODY),
+        url: filterSecretUrl(req.url!),
+        query: filterSecretProperty(req.query, PROTECTED_REQUEST_BODY),
+        params: filterSecretProperty(req.params, PROTECTED_REQUEST_BODY),
+        body: filterSecretProperty(req.raw.body, PROTECTED_REQUEST_BODY),
         authorization: get_auth(req),
         'user-agent': req.headers['user-agent'],
         origin: 'origin' in req.headers ? req.headers.origin : '',
@@ -54,11 +58,11 @@ const defaults: PinoHttpOptions = {
     res: pino.stdSerializers.res,
   },
   customSuccessMessage: function (req: IncomingMessage, res: ServerResponse) {
-    const url = 'originalUrl' in req ? req.originalUrl : req.url
+    const url = 'originalUrl' in req ? req.originalUrl : req.url ?? ''
     if (res.statusCode === 404) {
-      return `[${req.id}] ${req.method} ${url} resource not found`
+      return `[${req.id}] ${req.method} ${filterSecretUrl(url as string)} resource not found`
     }
-    return `[${req.id}] ${req.method} ${url} completed`
+    return `[${req.id}] ${req.method} ${filterSecretUrl(url as string)} completed`
   },
   customErrorMessage: function (_req: IncomingMessage, res: ServerResponse) {
     return 'request errored with status code: ' + res.statusCode

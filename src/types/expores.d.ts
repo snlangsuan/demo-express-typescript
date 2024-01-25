@@ -7,3 +7,13 @@ declare global {
     }
   }
 }
+
+declare module 'http' {
+  interface IncomingMessage {
+    query: Record<string, unknown>
+    params: Record<string, unknown>
+    raw: {
+      body: Record<string, unknown>
+    }
+  }
+}

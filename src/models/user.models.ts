@@ -11,3 +11,9 @@ export interface IUserCredential {
   username: string
   password: string
 }
+
+export interface IUserCredentialResponse {
+  access_token: string
+  refresh_token: string
+  expired: number
+}
